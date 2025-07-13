@@ -1,6 +1,7 @@
 package com.beyond.basic.b1_hello.Controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -178,15 +179,23 @@ public class HelloController {
 //    Case 6) json과 파일을 같이 처리 : text구조가 복잡(객체안의 객체 같은 경우)하여 피치 못하게 json을 써야하는 경우
 //    데이터형식 : hello={name:"hong", email:"hong@naver.com"}&photo=image.png
 //    단순 json 구조가 아닌 multipart-formdata 안에 json을 넣는 구조로 진행
-    @GetMapping("axios-json-file-view")
+    @GetMapping("/axios-json-file-view")
     public String axiosJsonFileView() {
         return "axiosJsonFileView";
     }
 
-    @PostMapping("axios-json-file-view")
+    @PostMapping("/axios-json-file-view")
     @ResponseBody
-    public String axiosJsonFileView(@RequestParam(value = "hello") Hello hello, @RequestParam(value = "photo") MultipartFile photo) {
-        System.out.println(hello);
+    public String axiosJsonFileView(@RequestParam(value = "hello") String hello, @RequestParam(value = "photo") MultipartFile photo) {
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try{
+            Hello hello1 = objectMapper.readValue(hello, Hello.class);
+            System.out.println(hello1);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+
         System.out.println(photo.getOriginalFilename());
         return "ok";
     }
