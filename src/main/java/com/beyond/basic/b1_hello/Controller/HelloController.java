@@ -185,22 +185,32 @@ public class HelloController {
         return "axiosJsonFileView";
     }
 
+//    @PostMapping("/axios-json-file-view")
+//    @ResponseBody
+//    public String axiosJsonFileView(@RequestParam(value = "hello") String hello, @RequestParam(value = "photo") MultipartFile photo) {
+//        ObjectMapper objectMapper = new ObjectMapper();
+//        try {
+//            Hello hello1 = objectMapper.readValue(hello, Hello.class);
+//            System.out.println(hello1);
+//        } catch (Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//
+//        System.out.println(photo.getOriginalFilename());
+//        return "ok";
+//    }
+
     @PostMapping("/axios-json-file-view")
     @ResponseBody
-    public String axiosJsonFileView(@RequestParam(value = "hello") String hello, @RequestParam(value = "photo") MultipartFile photo) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        try {
-            Hello hello1 = objectMapper.readValue(hello, Hello.class);
-            System.out.println(hello1);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-
+    public String axiosJsonFileView(@RequestPart("hello") Hello hello, @RequestPart("photo") MultipartFile photo) {
+//        json과 파일을 함께 처리해야할 때 RequestPart를 일반적으로 활용
+        System.out.println(hello);
         System.out.println(photo.getOriginalFilename());
         return "ok";
     }
 
     // PathVariable
-    // 파라미터 방식 => RequestParam => ModelAttribute
+    // formdata 방식 => RequestParam => ModelAttribute
     // json 방식 => RequestBody
+    // formdata 안에 json이 포함되어 있는 경우 => RequestPart로 분리해서 받아줌
 }
