@@ -176,7 +176,8 @@ public class HelloController {
         System.out.println(hello);
         return "OK";
     }
-//    Case 6) json과 파일을 같이 처리 : text구조가 복잡(객체안의 객체 같은 경우)하여 피치 못하게 json을 써야하는 경우
+
+    //    Case 6) json과 파일을 같이 처리 : text구조가 복잡(객체안의 객체 같은 경우)하여 피치 못하게 json을 써야하는 경우
 //    데이터형식 : hello={name:"hong", email:"hong@naver.com"}&photo=image.png
 //    단순 json 구조가 아닌 multipart-formdata 안에 json을 넣는 구조로 진행
     @GetMapping("/axios-json-file-view")
@@ -187,9 +188,8 @@ public class HelloController {
     @PostMapping("/axios-json-file-view")
     @ResponseBody
     public String axiosJsonFileView(@RequestParam(value = "hello") String hello, @RequestParam(value = "photo") MultipartFile photo) {
-
         ObjectMapper objectMapper = new ObjectMapper();
-        try{
+        try {
             Hello hello1 = objectMapper.readValue(hello, Hello.class);
             System.out.println(hello1);
         } catch (Exception e) {
@@ -199,4 +199,8 @@ public class HelloController {
         System.out.println(photo.getOriginalFilename());
         return "ok";
     }
+
+    // PathVariable
+    // 파라미터 방식 => RequestParam => ModelAttribute
+    // json 방식 => RequestBody
 }

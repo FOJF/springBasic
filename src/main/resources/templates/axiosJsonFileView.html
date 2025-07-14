@@ -27,7 +27,7 @@
         const fileInput = document.getElementById('photo');
         const file = fileInput.files[0];
         const serverData = new FormData();
-//            서버에서 RequestParam으로 받을때
+        // 서버에서 RequestParam으로 받을때
         serverData.append('hello', helloJson);
         serverData.append('photo', file);
 
