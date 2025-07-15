@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service // 트랜잭션 처리가 없는 경우 Controller와 달리 별다른 기능이 없어 Component로 대체 가능
 @RequiredArgsConstructor
@@ -39,29 +40,29 @@ public class AuthorService {
     private final AuthorMemoryRepository authorMemoryRepository;
 
     //    객체 조립은 서비스 담당
-    public void save(AuthorCreateDTO authorCreateDTO) {
+    public Author save(AuthorCreateDTO authorCreateDTO) {
         // 이메일 중복 검증
         Optional<Author> optionalAuthor = this.authorMemoryRepository.findByEmail(authorCreateDTO.getEmail());
-        if (optionalAuthor.isPresent()) throw new IllegalArgumentException("중복된 이메일");
+        if (optionalAuthor.isPresent()) throw new IllegalArgumentException("중복된 이메일입니다.");
 
-        Author author = new Author(authorCreateDTO.getName(), authorCreateDTO.getEmail(), authorCreateDTO.getPassword());
+        Author author = authorCreateDTO.toEntity();
         this.authorMemoryRepository.save(author);
+        return author;
     }
 
     public List<AuthorListDTO> findAll() {
-        List<AuthorListDTO> authorListDTO = new ArrayList<>();
-        this.authorMemoryRepository.findAll().forEach(author -> authorListDTO.add(new AuthorListDTO(author.getId(), author.getName(), author.getEmail())));
-        return authorListDTO;
+        return this.authorMemoryRepository.findAll().stream().map(AuthorListDTO::fromEntity).toList();
     }
 
     public AuthorDetailDTO findById(Long id) throws NoSuchElementException {
-        Author author = this.authorMemoryRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 ID입니다."));
-        return new AuthorDetailDTO(author.getId(), author.getName(), author.getEmail());
+        Author author = this.authorMemoryRepository.findById(id).orElseThrow(() -> new NoSuchElementException(id + "번은 없는 ID입니다."));
+        return AuthorDetailDTO.fromEntity(author);
     }
 
-    public void updatePassword(AuthorUpdatePwDTO authorUpdatePwDTO) throws NoSuchElementException {
+    public Author updatePassword(AuthorUpdatePwDTO authorUpdatePwDTO) throws NoSuchElementException {
         this.authorMemoryRepository.findByEmail(authorUpdatePwDTO.getEmail()).orElseThrow(() -> new NoSuchElementException("없는 이메일입니다."))
                 .updatePW(authorUpdatePwDTO.getPassword());
+        return this.authorMemoryRepository.findByEmail(authorUpdatePwDTO.getEmail()).get();
     }
 
     public void delete(Long id) {

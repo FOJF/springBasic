@@ -25,10 +25,11 @@ repositories {
 
 dependencies {
 //	아래 의존성은 db연결 및 관리를 위한 의존성 : jdbc, mybatis, jpa
-//	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+//	db의존성은 바로 db정보를 찾아 연결을 시도하기때문에,
+	implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
 //	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 //	implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:3.0.4'
-//	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client' // mariadb 드라이버
+	runtimeOnly 'org.mariadb.jdbc:mariadb-java-client' // mariadb 드라이버
 
 //	spring 웹서비스를 위한 기본 의존성
 	implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -44,6 +45,9 @@ dependencies {
 
 //	서버에서 화면을 만들어서 렌더링(화면을 준다) 해주기 위한 기술
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+
+//	소스수정 때마다 서버 재시작 불편한 경우 설정(서버 시작 자동화)
+//	implementation 'org.springframework.boot:spring-boot-devtools'
 }
 
 tasks.named('test') {
