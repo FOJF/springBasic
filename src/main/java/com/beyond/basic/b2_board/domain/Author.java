@@ -15,7 +15,7 @@ public class Author {
     private String password;
 
     public Author(String name, String email, String password) {
-        this.id = AuthorMemoryRepository.id;
+//        this.id = AuthorMemoryRepository.id; // 메모리 db용
         this.name = name;
         this.email = email;
         this.password = password;

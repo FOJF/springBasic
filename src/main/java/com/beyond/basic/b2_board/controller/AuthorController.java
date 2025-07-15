@@ -38,7 +38,6 @@ public class AuthorController {
 
 //        controller advice가 없었으면 위와 같이 개별적인 예외처리가 필요하나, 이제는 전역적인 예외 처리가 가능하다.
         Author author = this.authorService.save(authorCreateDTO);
-        System.out.println("자동 재시작 적용");
         return new ResponseEntity<>(author, HttpStatus.CREATED);
     }
 
