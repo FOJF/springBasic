@@ -1,12 +1,11 @@
-package com.beyond.basic.b2_board.service;
+package com.beyond.basic.b2_board.author.service;
 
-import com.beyond.basic.b2_board.domain.Author;
-import com.beyond.basic.b2_board.dto.AuthorCreateDTO;
-import com.beyond.basic.b2_board.dto.AuthorDetailDTO;
-import com.beyond.basic.b2_board.dto.AuthorListDTO;
-import com.beyond.basic.b2_board.dto.AuthorUpdatePwDTO;
-import com.beyond.basic.b2_board.repository.AuthorJdbcRepository;
-import com.beyond.basic.b2_board.repository.AuthorMemoryRepository;
+import com.beyond.basic.b2_board.author.domain.Author;
+import com.beyond.basic.b2_board.author.dto.AuthorCreateDTO;
+import com.beyond.basic.b2_board.author.dto.AuthorDetailDTO;
+import com.beyond.basic.b2_board.author.dto.AuthorListDTO;
+import com.beyond.basic.b2_board.author.dto.AuthorUpdatePwDTO;
+import com.beyond.basic.b2_board.author.repository.AuthorRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -40,13 +39,16 @@ public class AuthorService {
 //    의존성 주입(DI) 방법 3. RequiredArgs 어노테이션 사용 -> 반드시 초기화 되어야 하는 필드(final 등)을 대상으로 생성자를 자동으로 생성
 //    다형성 설계는 불가
 //    private final AuthorMemoryRepository authorRepository; // 메모리 db 용
-    private final AuthorJdbcRepository authorRepository;
+
+//    private final AuthorJdbcRepository authorRepository; // JDBC
+
+    private final AuthorRepository authorRepository; // Mybatis 특수한 인터페이스이기 때문에 잘 작동함
 
     //    객체 조립은 서비스 담당
     public Author save(AuthorCreateDTO authorCreateDTO) {
         // 이메일 중복 검증
         Optional<Author> optionalAuthor = this.authorRepository.findByEmail(authorCreateDTO.getEmail());
-        if (optionalAuthor.isPresent()) throw new IllegalArgumentException("중복된 이메일입니다.");
+        if (optionalAuthor.isPresent()) throw new IllegalArgumentException("중복된 Author 이메일입니다.");
 
         Author author = authorCreateDTO.toEntity();
         this.authorRepository.save(author);
@@ -61,17 +63,18 @@ public class AuthorService {
 
     @Transactional(readOnly = true)
     public AuthorDetailDTO findById(Long id) throws NoSuchElementException {
-        Author author = this.authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException(id + "번은 없는 ID입니다."));
+        Author author = this.authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 Author ID 입니다."));
         return AuthorDetailDTO.fromEntity(author);
     }
 
-    public Author updatePassword(AuthorUpdatePwDTO authorUpdatePwDTO) throws NoSuchElementException {
-        this.authorRepository.findByEmail(authorUpdatePwDTO.getEmail()).orElseThrow(() -> new NoSuchElementException("없는 이메일입니다."))
+    public void updatePassword(AuthorUpdatePwDTO authorUpdatePwDTO) throws NoSuchElementException {
+//        dirty checking : 객체를 수정한 후 별도의 update 쿼리 발생 시키지 않아도, 영속성 컨텍스트에 의해 객체 변경사항을 자동으로 반영
+        this.authorRepository.findByEmail(authorUpdatePwDTO.getEmail()).orElseThrow(() -> new NoSuchElementException("없는 Author 이메일입니다."))
                 .updatePW(authorUpdatePwDTO.getPassword());
-        return this.authorRepository.findByEmail(authorUpdatePwDTO.getEmail()).get();
     }
 
     public void delete(Long id) {
-        this.authorRepository.delete(id);
+        Author author = this.authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 Author ID 입니다."));
+        this.authorRepository.delete(author);
     }
 }

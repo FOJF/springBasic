@@ -1,4 +1,4 @@
-package com.beyond.basic.b2_board.dto;
+package com.beyond.basic.b2_board.author.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -7,8 +7,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class CommonDTO {
-    private Object result;
+public class CommonErrorDTO {
     private int status_code;
     private String status_message;
 }

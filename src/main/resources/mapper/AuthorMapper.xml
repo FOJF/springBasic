@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<!-- namespace에 경로를 입력해서 매핑관계를 알려줌 -->
+<mapper namespace="com.beyond.basic.b2_board.author.repository.AuthorMybatisRepository">
+    <!-- id에는 메서드 명을 적어야 함 -->
+    <!-- parameterType을 통해 입력받을 클래스를 연결 -->
+    <insert id="save" parameterType="com.beyond.basic.b2_board.author.domain.Author">
+        insert into author(name, email, password) values(#{name},#{email},#{password});
+    </insert>
+
+    <select id="findById" parameterType="java.lang.Long" resultType="com.beyond.basic.b2_board.author.domain.Author">
+        select * from author where id=#{id};
+    </select>
+    <!-- resultType에 Author 클래스를 연결해주면 자동으로 Optional로 리턴해줌 -->
+    <select id="findByEmail" parameterType="java.lang.String" resultType="com.beyond.basic.b2_board.author.domain.Author">
+        select * from author where email=#{email};
+    </select>
+
+    <!-- 알아서 리스트로 만들어서 리턴해줌 -->
+    <select id="findAll" resultType="com.beyond.basic.b2_board.author.domain.Author">
+        select * from author;
+    </select>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from author where id=#{id};
+    </delete>
+</mapper>
