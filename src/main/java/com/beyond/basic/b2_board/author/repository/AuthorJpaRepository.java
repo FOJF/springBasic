@@ -37,7 +37,7 @@ public class AuthorJpaRepository {
 //        작성 규칙 : db 테이블명, 컬럼명이 아니라 엔티티명/필드명을 기준으로 사용하고, 별칭(alias)를 활용
         Author author = null;
         try {
-           author = entityManager.createQuery("select a from Author a where a.email=:email", Author.class).setParameter("email", email).getSingleResult();
+            author = entityManager.createQuery("select a from Author a where a.email=:email", Author.class).setParameter("email", email).getSingleResult();
         } catch (Exception e) {
 //            e.printStackTrace();
         }

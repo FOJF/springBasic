@@ -6,6 +6,7 @@ import com.beyond.basic.b2_board.author.dto.AuthorDetailDTO;
 import com.beyond.basic.b2_board.author.dto.AuthorListDTO;
 import com.beyond.basic.b2_board.author.dto.AuthorUpdatePwDTO;
 import com.beyond.basic.b2_board.author.repository.AuthorRepository;
+import com.beyond.basic.b2_board.post.repository.PostRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,17 +46,17 @@ public class AuthorService {
     private final AuthorRepository authorRepository; // Mybatis 특수한 인터페이스이기 때문에 잘 작동함
 
     //    객체 조립은 서비스 담당
-    public Author save(AuthorCreateDTO authorCreateDTO) {
+    public AuthorDetailDTO save(AuthorCreateDTO authorCreateDTO) {
         // 이메일 중복 검증
         Optional<Author> optionalAuthor = this.authorRepository.findByEmail(authorCreateDTO.getEmail());
         if (optionalAuthor.isPresent()) throw new IllegalArgumentException("중복된 Author 이메일입니다.");
 
         Author author = authorCreateDTO.toEntity();
         this.authorRepository.save(author);
-        return author;
+        return AuthorDetailDTO.fromEntity(author);
     }
 
-//    Transactional이 필요 없는 경우는 아래의 어노테이션 적용
+    //    Transactional이 필요 없는 경우는 아래의 어노테이션 적용
     @Transactional(readOnly = true)
     public List<AuthorListDTO> findAll() {
         return this.authorRepository.findAll().stream().map(AuthorListDTO::fromEntity).toList();
@@ -64,6 +65,7 @@ public class AuthorService {
     @Transactional(readOnly = true)
     public AuthorDetailDTO findById(Long id) throws NoSuchElementException {
         Author author = this.authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 Author ID 입니다."));
+
         return AuthorDetailDTO.fromEntity(author);
     }
 

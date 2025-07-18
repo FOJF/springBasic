@@ -19,7 +19,7 @@ public class AuthorCreateDTO {
     @NotEmpty(message = "비밀번호를 입력해주세요.")
     @Size(min = 8, message = "비밀번호는 8자리 이상으로 입력해주세요.")
     private String password;
-    private Role role;
+    private Role role = Role.USER;
 
     public Author toEntity() {
         // 빌더 패턴은 매개변수의 개수와 순서에 상관없이 객체 생성 가능

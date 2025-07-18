@@ -1,6 +1,6 @@
 package com.beyond.basic.b2_board.common;
 
-import com.beyond.basic.b2_board.author.dto.CommonErrorDTO;
+import com.beyond.basic.b2_board.common.dto.CommonErrorDTO;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

@@ -1,10 +1,10 @@
 package com.beyond.basic.b2_board.author.controller;
 
-import com.beyond.basic.b2_board.author.domain.Author;
 import com.beyond.basic.b2_board.author.dto.AuthorCreateDTO;
+import com.beyond.basic.b2_board.author.dto.AuthorDetailDTO;
 import com.beyond.basic.b2_board.author.dto.AuthorListDTO;
 import com.beyond.basic.b2_board.author.dto.AuthorUpdatePwDTO;
-import com.beyond.basic.b2_board.author.dto.CommonDTO;
+import com.beyond.basic.b2_board.common.dto.CommonDTO;
 import com.beyond.basic.b2_board.author.service.AuthorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -38,8 +38,8 @@ public class AuthorController {
 //        return response;
 
 //        controller advice가 없었으면 위와 같이 개별적인 예외처리가 필요하나, 이제는 전역적인 예외 처리가 가능하다.
-        Author author = this.authorService.save(authorCreateDTO);
-        return new ResponseEntity<>(author, HttpStatus.CREATED);
+        AuthorDetailDTO dto = this.authorService.save(authorCreateDTO);
+        return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
     //    회원 목록 조회 : /author/list

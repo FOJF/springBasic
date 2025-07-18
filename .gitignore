@@ -356,6 +356,8 @@ gradle-app.setting
 *.hprof
 
 #application.yml의 개인정보 올라가는 것 방지
+src/main/resources/*.yml
 src/main/resources/application-prod.yml
+src/main/resources/application-local.yml
 
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,git,java,maven,eclipse,intellij,gradle,netbeans,visualstudiocode

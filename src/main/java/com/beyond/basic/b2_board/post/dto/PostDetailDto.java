@@ -15,6 +15,7 @@ public class PostDetailDto {
     private String title;
     private String contents;
     private String authorEmail;
+    private String delYN;
 
     public static PostDetailDto fromEntity(Post post) {
         return PostDetailDto.builder()
@@ -22,6 +23,7 @@ public class PostDetailDto {
                 .title(post.getTitle())
                 .contents(post.getContents())
                 .authorEmail(post.getAuthor().getEmail())
+                .delYN(post.getDelYN())
                 .build();
     }
 
