@@ -355,4 +355,7 @@ gradle-app.setting
 # Java heap dump
 *.hprof
 
+#application.yml의 개인정보 올라가는 것 방지
+src/main/resources/application-prod.yml
+
 # End of https://www.toptal.com/developers/gitignore/api/windows,macos,git,java,maven,eclipse,intellij,gradle,netbeans,visualstudiocode
