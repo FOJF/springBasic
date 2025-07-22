@@ -1,13 +1,15 @@
 package com.beyond.basic.b2_board.author.service;
 
 import com.beyond.basic.b2_board.author.domain.Author;
-import com.beyond.basic.b2_board.author.dto.AuthorCreateDTO;
-import com.beyond.basic.b2_board.author.dto.AuthorDetailDTO;
-import com.beyond.basic.b2_board.author.dto.AuthorListDTO;
-import com.beyond.basic.b2_board.author.dto.AuthorUpdatePwDTO;
+import com.beyond.basic.b2_board.author.dto.*;
 import com.beyond.basic.b2_board.author.repository.AuthorRepository;
+import com.beyond.basic.b2_board.post.domain.Post;
 import com.beyond.basic.b2_board.post.repository.PostRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,11 +17,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 
+@Slf4j
 @Service // 트랜잭션 처리가 없는 경우 Controller와 달리 별다른 기능이 없어 Component로 대체 가능
 @RequiredArgsConstructor
-@Transactional //스프링에서 메서드 단위로 트랜젝션처리를 하고, 만약 예외(unchecked) 발생시 자동 롤백 처리 지원
+@Transactional //스프링에서 메서드 단위로 트랜젝션처리(commit)를 하고, 만약 예외(unchecked) 발생시 자동 롤백 처리 지원
 // 클래스 차원에 붙히면 모든 메서드에 붙는 것과 같은 효과 -> 속도에 저하가 있을 수 있음(조회만 하는 경우에는 필요없지만 적용하니까)
 // 그런 경우는 findAll 메서드와 같이 @Transactional(readOnly = true) 어노테이션을 추가하면 됨(제외되는 효과)
+// update의 경우 레포를 거치지 않는다(영속성 컨텍스트로 인해)
 public class AuthorService {
 ////    의존성 주입(DI) 방법 1. Autowired 어노테이션 사용 -> 필드 주입. , 언제든지 새로 객체를 만들 수 있는 단점(안정성이 깨짐)이 있음(final로 선언하지 못해서 막을 방법이 없음)
 //    @Autowired
@@ -44,6 +48,9 @@ public class AuthorService {
 //    private final AuthorJdbcRepository authorRepository; // JDBC
 
     private final AuthorRepository authorRepository; // Mybatis 특수한 인터페이스이기 때문에 잘 작동함
+//    private final PostRepository postRepository;
+
+    private final PasswordEncoder passwordEncoder;
 
     //    객체 조립은 서비스 담당
     public AuthorDetailDTO save(AuthorCreateDTO authorCreateDTO) {
@@ -51,8 +58,29 @@ public class AuthorService {
         Optional<Author> optionalAuthor = this.authorRepository.findByEmail(authorCreateDTO.getEmail());
         if (optionalAuthor.isPresent()) throw new IllegalArgumentException("중복된 Author 이메일입니다.");
 
-        Author author = authorCreateDTO.toEntity();
+        String encodedPW = passwordEncoder.encode(authorCreateDTO.getPassword());
+
+        Author author = authorCreateDTO.toEntity(encodedPW);
         this.authorRepository.save(author);
+//
+////        cascading 테스트 : 회원이 생성될 때, 곧 바로 "가입인사 글을 생성하는 상황
+////        방법 1) 직접 POST 객체 생성 후 저장
+//        Post post = Post.builder()
+//                .title("안녕하세요")
+//                .contents(authorCreateDTO.getName() + "입니다. 반값습니다.")
+//                .author(author)
+//                .build();
+//        this.postRepository.save(post);
+//
+//        log.info(author.getPostList().size()+"");
+//        방법 2) casecade옵션 활용
+        Post post = Post.builder()
+                .title("안녕하세요")
+                .contents(authorCreateDTO.getName() + "입니다. 반값습니다.")
+                .author(author)
+                .build();
+        author.getPostList().add(post);
+
         return AuthorDetailDTO.fromEntity(author);
     }
 
@@ -78,5 +106,22 @@ public class AuthorService {
     public void delete(Long id) {
         Author author = this.authorRepository.findById(id).orElseThrow(() -> new NoSuchElementException("없는 Author ID 입니다."));
         this.authorRepository.delete(author);
+    }
+
+    public Author doLogin(AuthorLoginDto authorLoginDto) {
+//        Author author = this.authorRepository.findByEmail(authorLoginDto.getEmail())
+//                .orElseThrow(() -> new EntityNotFoundException("없는 Author Email 입니다."));
+//
+//        if (!passwordEncoder.matches(authorLoginDto.getPassword(), author.getPassword()))
+//            throw new BadCredentialsException("비밀번호가 틀렸습니다.");
+
+        // 보안을 위해 어떤 것이 틀렸는 지 안 알려주는 방법
+        Author author = this.authorRepository.findByEmail(authorLoginDto.getEmail())
+                .orElseThrow(() -> new BadCredentialsException("이메일 또는 비밀번호가 틀렸습니다."));
+
+        if (!passwordEncoder.matches(authorLoginDto.getPassword(), author.getPassword()))
+            throw new BadCredentialsException("이메일 또는 비밀번호가 틀렸습니다.");
+
+        return author;
     }
 }

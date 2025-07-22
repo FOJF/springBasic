@@ -1,15 +1,16 @@
 package com.beyond.basic.b2_board.author.controller;
 
-import com.beyond.basic.b2_board.author.dto.AuthorCreateDTO;
-import com.beyond.basic.b2_board.author.dto.AuthorDetailDTO;
-import com.beyond.basic.b2_board.author.dto.AuthorListDTO;
-import com.beyond.basic.b2_board.author.dto.AuthorUpdatePwDTO;
+import com.beyond.basic.b2_board.author.domain.Author;
+import com.beyond.basic.b2_board.author.dto.*;
+import com.beyond.basic.b2_board.common.JwtTokenProvider;
 import com.beyond.basic.b2_board.common.dto.CommonDTO;
 import com.beyond.basic.b2_board.author.service.AuthorService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -17,11 +18,14 @@ import java.util.List;
 @RestController // Controller + ResponseBody (화면 리턴은 불가능)
 @RequiredArgsConstructor
 @RequestMapping("/author")
+// PreAuthorized 어노테이션 사용하기 위한 설정
+@EnableMethodSecurity
 public class AuthorController {
     private final AuthorService authorService;
 
+    private final JwtTokenProvider jwtTokenProvider;
     //    CRUD
-//    회원가입
+//    회원가입ㅛ
     @PostMapping("/create")
 //    보통 사용자의 입력과 DB에 들어가는 엔티티와 다르기 때문에 DataTransferObject(DTO) class를 새로 만들어서 사용
 //    dto에 있는 NotEmpty어노테이션과 controller의 @Valid가 한 쌍이 되어 동작한다.
@@ -44,12 +48,14 @@ public class AuthorController {
 
     //    회원 목록 조회 : /author/list
     @GetMapping("/list")
+    @PreAuthorize("hasRole('ADMIN')")
     public List<AuthorListDTO> findAll() {
         return this.authorService.findAll();
     }
 
     //    회원 상세 조회 : id로 조회 /author/detail/1
     @GetMapping("/detail/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<?> findById(@PathVariable Long id) {
 //        try {
 //            String statusMsg = "Found Author id : " + id;
@@ -78,5 +84,19 @@ public class AuthorController {
     public String delete(@PathVariable Long id) {
         this.authorService.delete(id);
         return "OK";
+    }
+
+    @PostMapping("/doLogin")
+    public ResponseEntity<?> doLogin(@RequestBody AuthorLoginDto authorLoginDto) {
+        Author author = this.authorService.doLogin(authorLoginDto);
+        String token = jwtTokenProvider.createAtToken(author);
+        return ResponseEntity.ok(
+                CommonDTO.builder()
+                        .result(token)
+                        .status_code(HttpStatus.OK.value())
+                        .status_message("로그인 성공")
+                        .build()
+        );
+
     }
 }

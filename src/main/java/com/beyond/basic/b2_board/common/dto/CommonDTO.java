@@ -1,12 +1,14 @@
 package com.beyond.basic.b2_board.common.dto;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
+@Builder
 public class CommonDTO {
     private Object result;
     private int status_code;

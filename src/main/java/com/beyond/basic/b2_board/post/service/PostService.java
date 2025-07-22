@@ -11,6 +11,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,7 +28,9 @@ public class PostService {
     private final AuthorRepository authorRepository;
 
     public void save(PostCreateDto dto) {
-        Author author = this.authorRepository.findById(dto.getAuthorId()).orElseThrow(() -> new EntityNotFoundException("없는 ID 입니다."));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName(); // claims subject : email, 우리가 세팅했던 이메일(Subject)을 꺼내오는 방법
+        Author author = this.authorRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("없는 ID 입니다."));
         this.postRepository.save(dto.toEntity(author));
     }
 
