@@ -9,6 +9,8 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -77,6 +79,8 @@ public class AuthorService {
         Post post = Post.builder()
                 .title("안녕하세요")
                 .contents(authorCreateDTO.getName() + "입니다. 반값습니다.")
+                .isBooked(false)
+                .bookedTime(null)
                 .author(author)
                 .build();
         author.getPostList().add(post);
@@ -123,5 +127,12 @@ public class AuthorService {
             throw new BadCredentialsException("이메일 또는 비밀번호가 틀렸습니다.");
 
         return author;
+    }
+
+    public AuthorDetailDTO findMyInfo() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        Author author = this.authorRepository.findByEmail(email).orElseThrow(() -> new NoSuchElementException("없는 Author 이메일입니다."));
+        return AuthorDetailDTO.fromEntity(author);
     }
 }

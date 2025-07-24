@@ -1,5 +1,6 @@
 package com.beyond.basic.b2_board.common;
 
+import com.beyond.basic.b2_board.common.jwt.JwtTokenFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,6 +22,8 @@ import java.util.List;
 public class SecurityConfig {
 
     private final JwtTokenFilter jwtTokenFilter;
+    private final JwtAuthenticationHandler jwtAuthenticationHandler;
+    private final JwtAuthorizationHandler jwtAuthorizationHandler;
 
     // 내가 만든 클래스의 싱글톤화는 Component
     // 외부 라이브러리를 활용한 싱글톤은 Bean + Configuration
@@ -37,8 +40,12 @@ public class SecurityConfig {
                 .httpBasic(AbstractHttpConfigurer::disable)
                 // 세션로그인 방식 비활성화
                 .sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                // 토큰을 검증하고, Authentication 객체 생성
+                // jwtTokenFilter 토큰을 검증하고, Authentication 객체 생성
                 .addFilterBefore(jwtTokenFilter, UsernamePasswordAuthenticationFilter.class) //// 무조건 여기서 필터링 (근데 로그인, 회원가입은 토큰을 가지고 올 수가 없음, 토큰을 받으려고 하는 거니까 -> 그래서 하위에 예외api로 등록해줘서 통과시켜줌)
+                .exceptionHandling(e ->
+                        e.authenticationEntryPoint(jwtAuthenticationHandler) // 401
+                                .accessDeniedHandler(jwtAuthorizationHandler) // 403
+                )
                 // 예외 api 정책 설정
                 // authenticated() : 예외를 제외한 모든 요청에 대해서 Authentication객체가 생성되기를 요구
                 .authorizeHttpRequests(a -> a.requestMatchers("/author/create", "author/doLogin").permitAll().anyRequest().authenticated())

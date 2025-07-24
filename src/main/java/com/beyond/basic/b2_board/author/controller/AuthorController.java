@@ -2,7 +2,7 @@ package com.beyond.basic.b2_board.author.controller;
 
 import com.beyond.basic.b2_board.author.domain.Author;
 import com.beyond.basic.b2_board.author.dto.*;
-import com.beyond.basic.b2_board.common.JwtTokenProvider;
+import com.beyond.basic.b2_board.common.jwt.JwtTokenProvider;
 import com.beyond.basic.b2_board.common.dto.CommonDTO;
 import com.beyond.basic.b2_board.author.service.AuthorService;
 import jakarta.validation.Valid;
@@ -24,6 +24,7 @@ public class AuthorController {
     private final AuthorService authorService;
 
     private final JwtTokenProvider jwtTokenProvider;
+
     //    CRUD
 //    회원가입ㅛ
     @PostMapping("/create")
@@ -48,7 +49,7 @@ public class AuthorController {
 
     //    회원 목록 조회 : /author/list
     @GetMapping("/list")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")// filter 계층에서 체크해서 에러 터트림
     public List<AuthorListDTO> findAll() {
         return this.authorService.findAll();
     }
@@ -66,6 +67,12 @@ public class AuthorController {
 //        }
 
         return new ResponseEntity<>(new CommonDTO(this.authorService.findById(id), HttpStatus.OK.value(), "author is founded"), HttpStatus.OK);
+    }
+
+    @GetMapping("/myinfo")
+    public ResponseEntity<?> findMyInfo() {
+        AuthorDetailDTO dto = this.authorService.findMyInfo();
+        return new ResponseEntity<>(new CommonDTO(dto, HttpStatus.OK.value(), "my info"), HttpStatus.OK);
     }
 
     //    비밀번호 수정(Patch) : /author/updatepw   email, password -> json

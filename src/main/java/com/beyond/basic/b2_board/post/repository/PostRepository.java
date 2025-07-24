@@ -44,4 +44,7 @@ public interface PostRepository extends JpaRepository<Post, Long> {
     Page<Post> findAll(Pageable pageable);
 
     Page<Post> findAllByDelYN(Pageable pageable, String delYN);
+    Page<Post> findAllByDelYNAndIsBooked(Pageable pageable, String delYN, Boolean isBooked);
+
+    List<Post> findByIsBooked(Boolean isBooked);
 }

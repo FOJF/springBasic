@@ -39,7 +39,7 @@ public class PostController {
     @GetMapping("/list/pagination")
     // 데이터 요청 예시 : 8080/post/list?page=0&size=20&sort=title,asc
     public ResponseEntity<?> findAll(@PageableDefault(size = 2, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<PostListDto> dtos = this.postService.findAllByDelYN(pageable);
+        Page<PostListDto> dtos = this.postService.findAllByDelYNAndIsBooked(pageable);
         return new ResponseEntity<>(new CommonDTO(dtos, HttpStatus.OK.value(), "posts are found"), HttpStatus.OK);
     }
 

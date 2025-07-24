@@ -1,4 +1,4 @@
-package com.beyond.basic.b2_board.common;
+package com.beyond.basic.b2_board.common.jwt;
 
 import com.beyond.basic.b2_board.author.domain.Author;
 import io.jsonwebtoken.Claims;
@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.spec.SecretKeySpec;
 import java.security.Key;
-import java.security.KeyFactory;
 import java.util.Date;
 
 @Component

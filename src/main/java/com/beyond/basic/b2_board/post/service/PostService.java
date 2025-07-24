@@ -31,6 +31,7 @@ public class PostService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName(); // claims subject : email, 우리가 세팅했던 이메일(Subject)을 꺼내오는 방법
         Author author = this.authorRepository.findByEmail(email).orElseThrow(() -> new EntityNotFoundException("없는 ID 입니다."));
+
         this.postRepository.save(dto.toEntity(author));
     }
 
@@ -72,8 +73,8 @@ public class PostService {
     }
 
     //    페이징, 삭제여부까지
-    public Page<PostListDto> findAllByDelYN(Pageable pageable) {
-        Page<Post> posts = this.postRepository.findAllByDelYN(pageable, "N");
+    public Page<PostListDto> findAllByDelYNAndIsBooked(Pageable pageable) {
+        Page<Post> posts = this.postRepository.findAllByDelYNAndIsBooked(pageable, "N", Boolean.FALSE);
         return posts.map(PostListDto::fromEntity);
     }
 }
