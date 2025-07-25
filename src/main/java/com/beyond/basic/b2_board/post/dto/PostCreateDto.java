@@ -17,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 @AllArgsConstructor
 @Builder
 public class PostCreateDto {
+    private String category;
     @NotEmpty
     private String title;
     private String contents;
@@ -35,6 +36,7 @@ public class PostCreateDto {
             bookedTime = LocalDateTime.parse(this.bookedTime, dtf);
 
         return Post.builder()
+                .category(this.category)
                 .title(this.title)
                 .contents(this.contents)
                 .author(author)

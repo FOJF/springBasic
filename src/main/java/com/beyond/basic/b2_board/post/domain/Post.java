@@ -19,6 +19,8 @@ public class Post extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String category;
+
     @Column(nullable = false)
     private String title;
     @Column(length = 3000)
@@ -36,7 +38,7 @@ public class Post extends BaseTimeEntity {
     @JoinColumn(name = "author_id") // fk 관계성
     private Author author;
 
-    public void 예약여부변경해버리기() {
+    public void updateBooked() {
         this.isBooked = Boolean.FALSE;
     }
 }

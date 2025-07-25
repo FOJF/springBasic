@@ -4,9 +4,11 @@ import com.beyond.basic.b2_board.common.dto.CommonDTO;
 import com.beyond.basic.b2_board.post.dto.PostCreateDto;
 import com.beyond.basic.b2_board.post.dto.PostDetailDto;
 import com.beyond.basic.b2_board.post.dto.PostListDto;
+import com.beyond.basic.b2_board.post.dto.PostSearchDto;
 import com.beyond.basic.b2_board.post.service.PostService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -38,8 +40,8 @@ public class PostController {
 
     @GetMapping("/list/pagination")
     // 데이터 요청 예시 : 8080/post/list?page=0&size=20&sort=title,asc
-    public ResponseEntity<?> findAll(@PageableDefault(size = 2, sort = "id", direction = Sort.Direction.DESC) Pageable pageable) {
-        Page<PostListDto> dtos = this.postService.findAllByDelYNAndIsBooked(pageable);
+    public ResponseEntity<?> findAll(@PageableDefault(size = 2, sort = "id", direction = Sort.Direction.DESC) Pageable pageable, PostSearchDto dto) {
+        Page<PostListDto> dtos = this.postService.findAll(pageable, dto);
         return new ResponseEntity<>(new CommonDTO(dtos, HttpStatus.OK.value(), "posts are found"), HttpStatus.OK);
     }
 

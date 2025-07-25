@@ -59,6 +59,16 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
     runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'  // JSON 처리에 필요
+
+    //    파일처리를 위한 aws 의존성 추가
+    implementation 'software.amazon.awssdk:s3:2.17.58'
+
+//    implementation group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2' // swagger
+//    implementation group: 'io.springfox', name: 'springfox-swagger2', version: '2.9.2' //swagger
+
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0' // Swagger 사용시 ControllerAdvice로 인한 오류 피하기 위한 의존성
+
+    // 프로젝트의 효율성(성능 최적화, 배포 크기의 최소화)을 위해서 런타임에만 필요한 것, 컴파일 시 필요한 것, 두 사상황 모두에 필요한 것으로 구분한다.
 }
 
 tasks.named('test') {

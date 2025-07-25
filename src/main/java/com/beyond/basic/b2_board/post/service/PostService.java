@@ -6,16 +6,24 @@ import com.beyond.basic.b2_board.post.domain.Post;
 import com.beyond.basic.b2_board.post.dto.PostCreateDto;
 import com.beyond.basic.b2_board.post.dto.PostDetailDto;
 import com.beyond.basic.b2_board.post.dto.PostListDto;
+import com.beyond.basic.b2_board.post.dto.PostSearchDto;
 import com.beyond.basic.b2_board.post.repository.PostRepository;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -72,9 +80,35 @@ public class PostService {
         return posts.map(PostListDto::fromEntity);
     }
 
-    //    페이징, 삭제여부까지
+    //    페이징, 삭제여부, 예약여부까지
     public Page<PostListDto> findAllByDelYNAndIsBooked(Pageable pageable) {
         Page<Post> posts = this.postRepository.findAllByDelYNAndIsBooked(pageable, "N", Boolean.FALSE);
+        return posts.map(PostListDto::fromEntity);
+    }
+
+    // 검색을 위해 Specification 객체를 스프링에서 제공
+    // Specification 객체는 복잡한 쿼리를 명세를 이용하여 정의하는 방식으로, 쿼리를 쉽게 생성.
+    public Page<PostListDto> findAll(Pageable pageable, PostSearchDto dto) {
+        Specification<Post> specification = new Specification<Post>() {
+            // select * from post where del_yn = "N" and is_booked = false and title like "%dto.getTitle()%" and category=dto.getCategory();
+            @Override
+            public Predicate toPredicate(Root<Post> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+                // Root : 엔티티의 속성을 접근하기 위한 객체
+                // criteriaBuilder : 쿼리를 생성하기 위한 객체
+                List<Predicate> predicates = new ArrayList<>();
+                predicates.add(criteriaBuilder.equal(root.get("delYN"), "N"));
+                predicates.add(criteriaBuilder.equal(root.get("isBooked"), Boolean.FALSE));
+                if (dto.getCategory() != null)
+                    predicates.add(criteriaBuilder.equal(root.get("category"), dto.getCategory()));
+
+                if (dto.getTitle() != null)
+                    predicates.add(criteriaBuilder.like(root.get("title"), "%" + dto.getTitle() + "%"));
+
+                Predicate[] predicateArr = predicates.toArray(Predicate[]::new);
+                return criteriaBuilder.and(predicateArr);
+            }
+        };
+        Page<Post> posts = this.postRepository.findAll(specification, pageable);
         return posts.map(PostListDto::fromEntity);
     }
 }

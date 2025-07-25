@@ -46,6 +46,9 @@ public class Author extends BaseTimeEntity {
     @OneToOne(mappedBy = "author", fetch = FetchType.LAZY, cascade = CascadeType.PERSIST, orphanRemoval = true) // OneTo인 경우 mappedBy인듯
     private Address address;
 
+    private String profileImgUrl;
+
+    public void updateProfileImgUrl(String url) {this.profileImgUrl = url;}
     public void updatePW(String password) {
         this.password = password;
     }

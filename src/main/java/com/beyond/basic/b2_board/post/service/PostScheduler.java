@@ -27,16 +27,16 @@ public class PostScheduler {
     // 0 0/1 * * * * : 매월, 매일, 매시간, 1분에 한번씩 0초마다
     @Scheduled(cron = "0 0/1 * * * *") //
     public void postScheduled() {
-        log.info("======예약 스케쥴러 시작======");
+//        log.info("======예약 스케쥴러 시작======");
 
         List<Post> posts = postRepository.findByIsBooked(Boolean.TRUE);
 
         LocalDateTime now = LocalDateTime.now();
 
         posts.forEach(post -> {
-            if (post.getBookedTime().isBefore(now)) post.예약여부변경해버리기();
+            if (post.getBookedTime().isBefore(now)) post.updateBooked();
         });
 
-        log.info("======예약 스케쥴러 끝======");
+//        log.info("======예약 스케쥴러 끝======");
     }
 }

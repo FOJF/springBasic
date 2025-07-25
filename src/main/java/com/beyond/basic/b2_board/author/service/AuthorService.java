@@ -4,16 +4,19 @@ import com.beyond.basic.b2_board.author.domain.Author;
 import com.beyond.basic.b2_board.author.dto.*;
 import com.beyond.basic.b2_board.author.repository.AuthorRepository;
 import com.beyond.basic.b2_board.post.domain.Post;
-import com.beyond.basic.b2_board.post.repository.PostRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
+import software.amazon.awssdk.core.sync.RequestBody;
+import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -54,8 +57,13 @@ public class AuthorService {
 
     private final PasswordEncoder passwordEncoder;
 
+    private final S3Client s3Client;
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucket;
+
     //    객체 조립은 서비스 담당
-    public AuthorDetailDTO save(AuthorCreateDTO authorCreateDTO) {
+    public AuthorDetailDTO save(AuthorCreateDTO authorCreateDTO, MultipartFile profileImg) {
         // 이메일 중복 검증
         Optional<Author> optionalAuthor = this.authorRepository.findByEmail(authorCreateDTO.getEmail());
         if (optionalAuthor.isPresent()) throw new IllegalArgumentException("중복된 Author 이메일입니다.");
@@ -84,6 +92,28 @@ public class AuthorService {
                 .author(author)
                 .build();
         author.getPostList().add(post);
+//        System.out.println(profileImg.getOriginalFilename());
+
+        if (profileImg != null)
+            try {
+                String[] s = profileImg.getOriginalFilename().split("\\.");
+                String newProfileImgName = "author-" + author.getId() + "-profileimg." + s[s.length - 1];
+//        String newProfileImgName = "author-" + author.getId() + "-profileimg" + profileImg.getOriginalFilename();
+
+                // 이미지를 byte 형태로 업로드
+                PutObjectRequest putObjectRequest = PutObjectRequest.builder()
+                        .bucket(bucket)
+                        .key(newProfileImgName)
+                        .contentType(profileImg.getContentType()) //image/jpeg, video/mp4 ...
+                        .build();
+                s3Client.putObject(putObjectRequest, RequestBody.fromBytes(profileImg.getBytes()));
+
+                String profileImgUrl = s3Client.utilities().getUrl(a -> a.bucket(bucket).key(newProfileImgName)).toExternalForm();
+                author.updateProfileImgUrl(profileImgUrl);
+            } catch (Exception e) {
+                // checkedException을 uncheckedException으로 변경해 rollback 되도록 예외 처리
+                throw new IllegalArgumentException("이미지 업로드 실패");
+            }
 
         return AuthorDetailDTO.fromEntity(author);
     }

@@ -12,6 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -26,11 +27,20 @@ public class AuthorController {
     private final JwtTokenProvider jwtTokenProvider;
 
     //    CRUD
-//    회원가입ㅛ
+//    회원가입
     @PostMapping("/create")
+    /*
+    아래 코드 포스트맨 테스트 데이터 예시
+    1. multipart/form-data 선택
+    2. authorCreateDto에 Text로 json 데이터({"name": "hong1","email": "test@naver.com","password": "qwer1234"})를 입력 후 Content-type을 application/json으로 선택
+    3. profileImg는 file로 입력
+     */
+
 //    보통 사용자의 입력과 DB에 들어가는 엔티티와 다르기 때문에 DataTransferObject(DTO) class를 새로 만들어서 사용
 //    dto에 있는 NotEmpty어노테이션과 controller의 @Valid가 한 쌍이 되어 동작한다.
-    public ResponseEntity<?> save(@Valid @RequestBody AuthorCreateDTO authorCreateDTO) {
+    public ResponseEntity<?> save(@RequestPart(name = "authorCreateDto") @Valid AuthorCreateDTO authorCreateDTO,
+                                  // required = false 로 세팅하면 이미지를 무조건 받지 않을 수도 있음
+                                  @RequestPart(name = "profileImg", required = false) MultipartFile profileImg) {
 //        ResponseEntity<?> response = null;
 //        try {
 //            Author author = this.authorService.save(authorCreateDTO);
@@ -43,7 +53,8 @@ public class AuthorController {
 //        return response;
 
 //        controller advice가 없었으면 위와 같이 개별적인 예외처리가 필요하나, 이제는 전역적인 예외 처리가 가능하다.
-        AuthorDetailDTO dto = this.authorService.save(authorCreateDTO);
+//        System.out.println(profileImg.getOriginalFilename());
+        AuthorDetailDTO dto = this.authorService.save(authorCreateDTO, profileImg);
         return new ResponseEntity<>(dto, HttpStatus.CREATED);
     }
 
