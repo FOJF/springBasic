@@ -2,7 +2,6 @@ package com.beyond.basic.b2_board.common;
 
 import com.beyond.basic.b2_board.common.dto.CommonErrorDTO;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.persistence.Id;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -33,6 +32,5 @@ public class JwtAuthorizationHandler implements AccessDeniedHandler {
         PrintWriter out = response.getWriter();
         out.print(json);
         out.flush();
-
     }
 }

@@ -18,6 +18,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -110,7 +111,7 @@ public class AuthorService {
 
                 String profileImgUrl = s3Client.utilities().getUrl(a -> a.bucket(bucket).key(newProfileImgName)).toExternalForm();
                 author.updateProfileImgUrl(profileImgUrl);
-            } catch (Exception e) {
+            } catch (IOException e) {
                 // checkedException을 uncheckedException으로 변경해 rollback 되도록 예외 처리
                 throw new IllegalArgumentException("이미지 업로드 실패");
             }
